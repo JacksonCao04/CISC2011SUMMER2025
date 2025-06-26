@@ -1,4 +1,9 @@
-# W2c2-Activity Variables and constants CODE 
+# W2c2-Activity Variables and constants  
+![ Flowchart](<W2c2-Activity Variables and constants.jpg>)
+
+
+# W2c2-Activity Variables and constants  
+```nasm
 section .text
 global _start
 
@@ -18,5 +23,3 @@ segment .data
 var1 dd 10
 var2 dd 15
 
-## Flowchart
-![ Flowchart](<W2c2-Activity Variables and constants.jpg>)
