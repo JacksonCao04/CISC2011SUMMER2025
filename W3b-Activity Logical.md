@@ -4,104 +4,97 @@ W3b-Activity Logical
 
 ```nasm
 section .data
-    var1    dd  5
-    
+    value1 db 0x5A
+    value2 dw 0x1234
+    value3 dd 0xDEADBEEF
+
 section .bss
-    result  resd 1
-    
+    result resd 1
+
 section .text
     global _start
-    
+
 _start:
-    mov     eax, [var1]
-    neg     eax
-    mov     ebx, 10
-    imul    eax, ebx
-    mov     [result], eax
+    mov al, [value1]
+    xor al, al
+    mov [result], al
     
-    mov     eax, 1
-    xor     ebx, ebx
-    int     0x80
+    mov ax, [value2]
+    xor ax, ax
+    mov [result], ax
+    
+    mov eax, [value3]
+    xor eax, eax
+    mov [result], eax
+    
+    mov ebx, 0x12345678
+    xor ebx, ebx
+    mov [result], ebx
+    
+    mov eax, 1
+    xor ebx, ebx
+    int 0x80
 ```
+TEST 
 ```nasm
 section .data
-    var1    dd  10
-    var2    dd  20
-    var3    dd  30
-    var4    dd  40
-    
+    flags db 0b10101100
+    mask1 db 0b00000001
+    mask2 db 0b00001000
+    mask3 db 0b10000000
+    counter dd 5
+
 section .bss
-    result  resd 1
-    
+    result resd 1
+
 section .text
     global _start
-    
+
 _start:
-    mov     eax, [var1]
-    add     eax, [var2]
-    add     eax, [var3]
-    add     eax, [var4]
-    mov     [result], eax
-    
-    mov     eax, 1
-    xor     ebx, ebx
-    int     0x80
+    mov al, [flags]
+    test al, [mask1]
+    jz bit0_clear
+    mov dword [result], 1
+    jmp check_bit3
+bit0_clear:
+    mov dword [result], 0
 
+check_bit3:
+    mov al, [flags]
+    test al, [mask2]
+    jz bit3_clear
+    mov dword [result], 1
+    jmp check_bit7
+bit3_clear:
+    mov dword [result], 0
 
-```
+check_bit7:
+    mov al, [flags]
+    test al, [mask3]
+    jz bit7_clear
+    mov dword [result], 1
+    jmp test_zero
+bit7_clear:
+    mov dword [result], 0
 
-```nasm
-section .data
-    var1    dd  4
-    var2    dd  3
-    var3    dd  15
-    
-section .bss
-    result  resd 1
-    
-section .text
-    global _start
-    
-_start:
-    mov     eax, [var1]
-    neg     eax
-    mov     ebx, [var2]
-    imul    eax, ebx
-    add     eax, [var3]
-    mov     [result], eax
-    
-    mov     eax, 1
-    xor     ebx, ebx
-    int     0x80****
+test_zero:
+    xor eax, eax
+    test eax, eax
+    jnz not_zero
+    mov dword [result], 1
+    jmp test_loop
+not_zero:
+    mov dword [result], 0
 
-
-```
-
-```nasm
-section .data
-    var1    dd  12
-    var2    dd  7
-    
-section .bss
-    result  resd 1
-    
-section .text
-    global _start
-    
-_start:
-    mov     eax, [var1]
-    shl     eax, 1
-    
-    mov     ebx, [var2]
-    sub     ebx, 3
-    
-    cdq
-    idiv    ebx
-    mov     [result], eax
-    
-    mov     eax, 1
-    xor     ebx, ebx
-    int     0x80
-
-```
-
+test_loop:
+    mov ecx, [counter]
+loop_start:
+    test ecx, ecx
+    jz loop_end
+    mov [result], ecx
+    dec ecx
+    jmp loop_start
+loop_end:
+    mov eax, 1
+    xor ebx, ebx
+    int 0x80
