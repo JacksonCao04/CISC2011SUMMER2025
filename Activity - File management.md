@@ -6,49 +6,72 @@ String Length Calculation: Using the $ - "label technique to calculate string le
 
 
 ```nasm
-section .data
-    number      dq  17
-    msg_even    db  'even', 10
-    len_even    equ $ - msg_even
-    msg_odd     db  'odd', 10
-    len_odd     equ $ - msg_odd
-
 section .text
     global _start
 
 _start:
-    mov     rax, [number]
+    mov ecx, 0711o
+    mov ebx, filename
+    mov eax, 8
+    int 0x80
     
-    call    check_odd_even
+    mov [fd_out], eax
     
-    mov     rax, 60
-    xor     rdi, rdi
-    syscall
+    mov eax, 4
+    mov ebx, [fd_out]
+    mov ecx, content1
+    mov edx, 44
+    int 0x80
+    
+    mov eax, 4
+    mov ebx, [fd_out]
+    mov ecx, content2
+    mov edx, 78
+    int 0x80
+    
+    mov eax, 6
+    mov ebx, [fd_out]
+    int 0x80
+    
+    mov eax, 5
+    mov ebx, filename
+    mov ecx, 2
+    mov edx, 0777o
+    int 0x80
+    
+    mov [fd_out], eax
+    
+    mov eax, 19
+    mov ebx, [fd_out]
+    mov ecx, 0
+    mov edx, 2
+    int 0x80
+    
+    mov eax, 4
+    mov ebx, [fd_out]
+    mov ecx, content3
+    mov edx, 53
+    int 0x80
+    
+    mov eax, 4
+    mov ebx, [fd_out]
+    mov ecx, content4
+    mov edx, 34
+    int 0x80
+    
+    mov eax, 6
+    mov ebx, [fd_out]
+    int 0x80
+    
+    mov eax, 1
+    int 0x80
 
-check_odd_even:
-    push    rax
-    
-    and     rax, 1
-    jz      print_even
-    
-    call    print_odd
-    jmp     check_done
-    
-print_even:
-    mov     rax, 1
-    mov     rdi, 1
-    mov     rsi, msg_even
-    mov     rdx, len_even
-    syscall
-    jmp     check_done
+section .data
+    filename db 'quotes.txt', 0h
+    content1 db 'To be, or not to be, that is the question.', 0xa
+    content2 db 'A fool thinks himself to be wise, but a wise man knows himself to be a fool.', 0xa
+    content3 db 'Better three hours too soon than a minute too late.', 0xa
+    content4 db 'No legacy is so rich as honesty.', 0xa
 
-print_odd:
-    mov     rax, 1
-    mov     rdi, 1
-    mov     rsi, msg_odd
-    mov     rdx, len_odd
-    syscall
-
-check_done:
-    pop     rax
-    ret
+section .bss
+    fd_out resb 1
