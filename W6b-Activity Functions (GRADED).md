@@ -2,49 +2,58 @@ W6b-Activity Functions (GRADED)
 ![Assembly Program Flowchart](<W6b-Activity Functions (GRADED).jpg>)
 
 ```nasm
-section .data
-    number      dq  17
-    msg_even    db  'even', 10
-    len_even    equ $ - msg_even
-    msg_odd     db  'odd', 10
-    len_odd     equ $ - msg_odd
-
 section .text
     global _start
 
 _start:
-    mov     rax, [number]
+    mov eax, 15
+    push eax
+    call check_odd_even
     
-    call    check_odd_even
+    add esp, 4
     
-    mov     rax, 60
-    xor     rdi, rdi
-    syscall
+    mov eax, 1
+    mov ebx, 0
+    int 0x80
 
 check_odd_even:
-    push    rax
+    push ebp
     
-    and     rax, 1
-    jz      print_even
+    mov ebp, esp
     
-    call    print_odd
-    jmp     check_done
+    sub esp, 16
     
-print_even:
-    mov     rax, 1
-    mov     rdi, 1
-    mov     rsi, msg_even
-    mov     rdx, len_even
-    syscall
-    jmp     check_done
-
-print_odd:
-    mov     rax, 1
-    mov     rdi, 1
-    mov     rsi, msg_odd
-    mov     rdx, len_odd
-    syscall
-
-check_done:
-    pop     rax
+    mov eax, DWORD[ebp+8]
+    mov DWORD[ebp-4], eax
+    
+    mov eax, DWORD[ebp-4]
+    and eax, 1
+    mov DWORD[ebp-8], eax
+    
+    cmp DWORD[ebp-8], 0
+    je display_even
+    
+display_odd:
+    mov DWORD[ebp-12], 'odd'
+    mov byte[ebp-9], 0x0A
+    
+    lea ecx, [ebp-12]
+    mov edx, 4
+    mov ebx, 1
+    mov eax, 4
+    int 0x80
+    jmp function_epilogue
+    
+display_even:
+    mov DWORD[ebp-12], 'even'
+    mov byte[ebp-8], 0x0A
+    
+    lea ecx, [ebp-12]
+    mov edx, 5
+    mov ebx, 1
+    mov eax, 4
+    int 0x80
+    
+function_epilogue:
+    leave
     ret
